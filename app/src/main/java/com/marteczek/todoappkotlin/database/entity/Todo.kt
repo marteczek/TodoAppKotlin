@@ -13,7 +13,7 @@ data class Todo(
     @ColumnInfo(name = "todo_name")
     val todoName: String,
 
-    val completionDate: Date?,
+    val completionDate: Date? = null,
 
-    val category: String?
+    val category: String? = null
 )

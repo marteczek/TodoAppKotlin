@@ -55,4 +55,22 @@ class TodoServiceTest {
         assertEquals(date, todo.completionDate)
         assertEquals(category, todo.category)
     }
+
+    @Test
+    fun insertTodo_nullColumns() {
+        //given
+        val name = "name"
+        val todo = Todo(todoName = name)
+        val todoService = TodoService(todoDao)
+        //when
+        todoService.insertTodo(todo)
+        //then
+        val todos = todoDao.findAll()
+        assertEquals(1, todos.size)
+        val newTodo = todos.get(0)
+        assertEquals(name, todo.todoName)
+        assertNull(todo.completionDate)
+        assertNull(todo.category)
+    }
+
 }
