@@ -1,41 +1,143 @@
 package com.marteczek.todoappkotlin.activity
 
-import androidx.appcompat.app.AppCompatActivity
+import android.app.DatePickerDialog
 import android.os.Bundle
+import android.os.PersistableBundle
 import android.text.TextUtils
+import android.text.format.DateFormat
 import android.view.View
+import android.widget.ArrayAdapter
+import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.marteczek.todoappkotlin.R
 import com.marteczek.todoappkotlin.database.entity.Todo
+import com.marteczek.todoappkotlin.database.entity.type.TaskCategory
+import com.marteczek.todoappkotlin.service.SaveTodoStatus
 import com.marteczek.todoappkotlin.viewmodel.TodoEditorViewModel
 import kotlinx.android.synthetic.main.activity_todo_editor.*
+import java.util.*
+
 
 class TodoEditorActivity : AppCompatActivity() {
+    companion object {
+        const val STATE_COMPLETION_DATE = "state_completed_date"
+    }
+
+    private var completionDate: Date? = null
+
     private val viewModel by lazy {
         ViewModelProvider(this).get(TodoEditorViewModel::class.java)
     }
 
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_todo_editor)
-        bindButtons()
+        bindUIViews()
+        configureCategorySpinner()
     }
 
-    private fun bindButtons() {
+    private fun bindUIViews() {
         saveButton.setOnClickListener(this::saveTodo)
         cancelButton.setOnClickListener(this::cancel)
+        completionDateTextView.setOnClickListener(this::enterCompletionDate)
     }
 
-    fun saveTodo(v: View) {
-        val todoName = todoNameEditText.text.toString()
+
+    private fun configureCategorySpinner() {
+        val categoryList = mapOf(
+            TaskCategory.OTHER to getString(R.string.category_other),
+            TaskCategory.WORK to getString(R.string.category_work),
+            TaskCategory.SHOPPING to getString(R.string.category_shopping)
+        ).map { (k, v) -> CategoryItem(k, v)}
+        val categoryAdapter: ArrayAdapter<CategoryItem> = ArrayAdapter(
+            this, android.R.layout.simple_spinner_item, categoryList)
+        categoryAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        categorySpinner.adapter = categoryAdapter
+    }
+
+    private fun saveTodo(v: View) {
+        val todoName = todoNameTextView.text.toString()
         if (!TextUtils.isEmpty(todoName)){
-            val todo = Todo( todoName = todoName)
-            viewModel.insertTodo(todo)
-            finish()
+            val categoryItem = categorySpinner.selectedItem as CategoryItem?
+            val todo = Todo(
+                todoName = todoName,
+                completionDate = completionDate,
+                category = categoryItem?.key)
+            viewModel.insertTodo(todo).observe(this, Observer {result -> onTodoSavingResult(result)})
         }
     }
 
-    fun cancel(v: View) {
+    private fun onTodoSavingResult(saveTodoStatus: SaveTodoStatus) {
+        if (saveTodoStatus.status) {
+            Toast.makeText(this, R.string.todo_has_been_added, Toast.LENGTH_SHORT).show()
+            finish()
+        } else {
+            showDialogRetryTodoSaving(saveTodoStatus.todo)
+        }
+    }
+
+    private fun showDialogRetryTodoSaving(todo: Todo) {
+        val builder = AlertDialog.Builder(this)
+        builder.setTitle(R.string.saving)
+            .setMessage(R.string.question_retry_save)
+            .setPositiveButton(R.string.yes) {_, _ ->
+                viewModel.insertTodo(todo).observe(this, Observer {result -> onTodoSavingResult(result)})
+            }
+            .setNegativeButton(R.string.no) {_, _ -> finish()}
+            .show()
+    }
+
+    private fun cancel(v: View) {
         finish()
+    }
+
+    private fun enterCompletionDate(v: View) {
+        val calendar = Calendar.getInstance()
+        if (completionDate != null) {
+            calendar.time = completionDate!!
+        }
+        val year = calendar.get(Calendar.YEAR)
+        val month = calendar.get(Calendar.MONTH)
+        val day = calendar.get(Calendar.DAY_OF_MONTH)
+        val picker = DatePickerDialog(this,
+            { _, y, m, d ->
+                completionDate = GregorianCalendar(y, m, d).time
+                updateCompletionDate()
+            }, year, month, day
+        )
+        picker.show()
+    }
+
+    private fun updateCompletionDate() {
+        val dateFormat = DateFormat.getDateFormat(applicationContext)
+        if (completionDate!= null) {
+            completionDateTextView.setText(dateFormat.format(completionDate!!))
+        }
+    }
+
+    override fun onRestoreInstanceState(savedInstanceState: Bundle) {
+        super.onRestoreInstanceState(savedInstanceState)
+        val date = savedInstanceState.getLong(STATE_COMPLETION_DATE, -1)
+        if (date != -1L) {
+            completionDate = Date(date)
+            updateCompletionDate()
+        }
+    }
+
+    override fun onSaveInstanceState(outState: Bundle, outPersistentState: PersistableBundle) {
+        super.onSaveInstanceState(outState, outPersistentState)
+        if (completionDate != null) {
+            outState.putLong(STATE_COMPLETION_DATE, completionDate!!.time)
+        }
+    }
+
+    private data class CategoryItem(
+        val key: String,
+        val text: String){
+        override fun toString() = text
     }
 }

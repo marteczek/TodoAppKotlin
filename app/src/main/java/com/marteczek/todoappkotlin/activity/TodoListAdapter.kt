@@ -33,9 +33,8 @@ class TodoListAdapter(
         val todo: Todo = todos?.get(position) ?: Todo(todoName = "")
         holder.nameTextView.text = todo.todoName
         val date = todo.completionDate
-        holder.executionDateTextView.text = if(date == null) "" else dateFormat.format(date)
-        holder.executionDateTextView.text = todo.completionDate?.toString()
-        val category = when(todo.category) {
+        holder.executionDateTextView.text = date?.let {dateFormat.format(it)}
+        val category = when (todo.category) {
             TaskCategory.WORK -> context.getString(R.string.category_work)
             TaskCategory.SHOPPING -> context.getString(R.string.category_shopping)
             TaskCategory.OTHER -> context.getString(R.string.category_other)
@@ -48,9 +47,9 @@ class TodoListAdapter(
         return todos?.get(position)
     }
 
-    class TodoViewHolder(itemView: View): RecyclerView.ViewHolder(itemView){
-        val nameTextView: TextView = itemView.findViewById(R.id.todoNameEditText)
+    class TodoViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        val nameTextView: TextView = itemView.findViewById(R.id.todo_name)
         val executionDateTextView: TextView = itemView.findViewById(R.id.completion_date)
-        val categoryTextView: TextView = itemView.findViewById(R.id.completion_date)
+        val categoryTextView: TextView = itemView.findViewById(R.id.category)
     }
 }

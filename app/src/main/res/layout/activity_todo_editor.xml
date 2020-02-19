@@ -7,7 +7,7 @@
     tools:context=".activity.TodoEditorActivity">
 
     <EditText
-        android:id="@+id/todoNameEditText"
+        android:id="@+id/todoNameTextView"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
@@ -23,7 +23,7 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <EditText
-        android:id="@+id/completionDateEditText"
+        android:id="@+id/completionDateTextView"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
@@ -31,16 +31,16 @@
         android:focusable="false"
         android:hint="@string/completion_date"
         android:inputType="date"
-        app:layout_constraintEnd_toEndOf="@+id/todoNameEditText"
-        app:layout_constraintStart_toStartOf="@+id/todoNameEditText"
-        app:layout_constraintTop_toBottomOf="@+id/todoNameEditText" />
+        app:layout_constraintEnd_toEndOf="@+id/todoNameTextView"
+        app:layout_constraintStart_toStartOf="@+id/todoNameTextView"
+        app:layout_constraintTop_toBottomOf="@+id/todoNameTextView" />
 
     <Spinner
         android:id="@+id/categorySpinner"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        app:layout_constraintStart_toStartOf="@+id/todoNameEditText"
+        app:layout_constraintStart_toStartOf="@+id/todoNameTextView"
         app:layout_constraintTop_toBottomOf="@+id/category_label" />
 
     <TextView
@@ -49,8 +49,8 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
         android:text="@string/category"
-        app:layout_constraintStart_toStartOf="@+id/todoNameEditText"
-        app:layout_constraintTop_toBottomOf="@+id/completionDateEditText" />
+        app:layout_constraintStart_toStartOf="@+id/todoNameTextView"
+        app:layout_constraintTop_toBottomOf="@+id/completionDateTextView" />
 
     <Button
         android:id="@+id/saveButton"
