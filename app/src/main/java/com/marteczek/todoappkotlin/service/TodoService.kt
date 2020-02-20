@@ -9,7 +9,8 @@ import com.marteczek.todoappkotlin.database.entity.Todo
 
 class TodoService(
     private val todoDao: TodoDao,
-    private val dbHelper: TodoDatabaseHelper) {
+    private val dbHelper: TodoDatabaseHelper
+){
     companion object{ const val TAG = "TodoService"}
 
     fun insertTodo(todo: Todo): LiveData<SaveTodoStatus> {
@@ -18,7 +19,7 @@ class TodoService(
             try {
                 val id = todoDao.insert(todo)
                 val error = -1L
-                if (id != error) {
+                if (id == error) {
                     status.postValue(SaveTodoStatus(true, todo))
                 } else {
                     status.postValue(SaveTodoStatus(false, todo))
@@ -32,4 +33,10 @@ class TodoService(
     }
 
     fun getTodos(): LiveData<List<Todo>> = todoDao.findAllAsync()
+
+    fun deleteTodo(todo: Todo) {
+        dbHelper.execute(Runnable {
+            todo.id?.let {todoDao.deleteById(it)}
+        })
+    }
 }

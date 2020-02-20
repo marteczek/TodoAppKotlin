@@ -3,7 +3,6 @@ package com.marteczek.todoappkotlin.viewmodel
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.Observer
 
 import com.marteczek.todoappkotlin.database.TodoDatabase
 import com.marteczek.todoappkotlin.database.TodoDatabaseHelperImpl
@@ -18,7 +17,9 @@ class TodoEditorViewModel(application: Application): AndroidViewModel(applicatio
     private val todoService = TodoService(todoDao,
         TodoDatabaseHelperImpl(TodoDatabase.getDatabase(application)))
 
+    var lastInsertTodoStatus: LiveData<SaveTodoStatus>? = null
+
     fun insertTodo(todo: Todo): LiveData<SaveTodoStatus> {
-       return todoService.insertTodo(todo)
+        return todoService.insertTodo(todo).also {lastInsertTodoStatus = it}
     }
 }

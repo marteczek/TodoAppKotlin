@@ -19,6 +19,10 @@ class TodoListAdapter(
     private val dateFormat = android.text.format.DateFormat.getDateFormat(context)
 
     var todos: List<Todo>? = null
+        set(value) {
+            field = value
+            notifyDataSetChanged()
+        }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TodoViewHolder {
         val view = inflater.inflate(R.layout.recyclerview_todo_item, parent, false)

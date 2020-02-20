@@ -1,6 +1,7 @@
 package com.marteczek.todoappkotlin.activity
 
 import android.app.DatePickerDialog
+import android.app.Dialog
 import android.os.Bundle
 import android.os.PersistableBundle
 import android.text.TextUtils
@@ -10,6 +11,7 @@ import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.marteczek.todoappkotlin.R
@@ -18,6 +20,7 @@ import com.marteczek.todoappkotlin.database.entity.type.TaskCategory
 import com.marteczek.todoappkotlin.service.SaveTodoStatus
 import com.marteczek.todoappkotlin.viewmodel.TodoEditorViewModel
 import kotlinx.android.synthetic.main.activity_todo_editor.*
+import java.lang.IllegalStateException
 import java.util.*
 
 
@@ -38,6 +41,7 @@ class TodoEditorActivity : AppCompatActivity() {
         setContentView(R.layout.activity_todo_editor)
         bindUIViews()
         configureCategorySpinner()
+        bindViewModelData()
     }
 
     private fun bindUIViews() {
@@ -45,7 +49,6 @@ class TodoEditorActivity : AppCompatActivity() {
         cancelButton.setOnClickListener(this::cancel)
         completionDateTextView.setOnClickListener(this::enterCompletionDate)
     }
-
 
     private fun configureCategorySpinner() {
         val categoryList = mapOf(
@@ -57,6 +60,10 @@ class TodoEditorActivity : AppCompatActivity() {
             this, android.R.layout.simple_spinner_item, categoryList)
         categoryAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         categorySpinner.adapter = categoryAdapter
+    }
+
+    private fun bindViewModelData() {
+        viewModel.lastInsertTodoStatus?.let{it. observe(this, Observer {result -> onTodoSavingResult(result)})}
     }
 
     private fun saveTodo(v: View) {
@@ -85,10 +92,12 @@ class TodoEditorActivity : AppCompatActivity() {
         builder.setTitle(R.string.saving)
             .setMessage(R.string.question_retry_save)
             .setPositiveButton(R.string.yes) {_, _ ->
-                viewModel.insertTodo(todo).observe(this, Observer {result -> onTodoSavingResult(result)})
+                this.viewModel.insertTodo(todo).observe(this, Observer {
+                        result -> this.onTodoSavingResult(result)
+                })
             }
-            .setNegativeButton(R.string.no) {_, _ -> finish()}
-            .show()
+            .setNegativeButton(R.string.no) {_, _ -> this.finish()}
+        builder.show()
     }
 
     private fun cancel(v: View) {
@@ -96,20 +105,7 @@ class TodoEditorActivity : AppCompatActivity() {
     }
 
     private fun enterCompletionDate(v: View) {
-        val calendar = Calendar.getInstance()
-        if (completionDate != null) {
-            calendar.time = completionDate!!
-        }
-        val year = calendar.get(Calendar.YEAR)
-        val month = calendar.get(Calendar.MONTH)
-        val day = calendar.get(Calendar.DAY_OF_MONTH)
-        val picker = DatePickerDialog(this,
-            { _, y, m, d ->
-                completionDate = GregorianCalendar(y, m, d).time
-                updateCompletionDate()
-            }, year, month, day
-        )
-        picker.show()
+        DatePickerDialogFragment().show(supportFragmentManager, "")
     }
 
     private fun updateCompletionDate() {
@@ -139,5 +135,24 @@ class TodoEditorActivity : AppCompatActivity() {
         val key: String,
         val text: String){
         override fun toString() = text
+    }
+
+    class DatePickerDialogFragment : DialogFragment() {
+        override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
+            return activity?.let {
+                val activity = it as TodoEditorActivity
+                val calendar = Calendar.getInstance()
+                activity.completionDate?.let {t -> calendar.time = t}
+                val year = calendar.get(Calendar.YEAR)
+                val month = calendar.get(Calendar.MONTH)
+                val day = calendar.get(Calendar.DAY_OF_MONTH)
+                DatePickerDialog(it,
+                    { _, y, m, d ->
+                        activity.completionDate = GregorianCalendar(y, m, d).time
+                        activity.updateCompletionDate()
+                    }, year, month, day
+                )
+            } ?: throw IllegalStateException("Activity cannot be null")
+        }
     }
 }

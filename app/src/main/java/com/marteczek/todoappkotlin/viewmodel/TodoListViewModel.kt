@@ -15,4 +15,8 @@ class TodoListViewModel (application: Application): AndroidViewModel(application
     private val todosLiveData: LiveData<List<Todo>> by lazy { todoService.getTodos() }
 
     fun getTodos() = todosLiveData
+
+    fun deleteTodo(todo: Todo) {
+        todoService.deleteTodo(todo)
+    }
 }
