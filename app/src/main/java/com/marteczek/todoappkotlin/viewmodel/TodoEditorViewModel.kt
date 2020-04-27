@@ -11,7 +11,8 @@ import com.marteczek.todoappkotlin.service.SaveTodoStatus
 
 import com.marteczek.todoappkotlin.service.TodoService
 
-class TodoEditorViewModel(application: Application): AndroidViewModel(application) {
+
+class TodoEditorViewModel(application: Application): AndroidViewModel(application) Runnable{
     //TODO
     private val todoDao = TodoDatabase.getDatabase(application).todoDao()
     private val todoService = TodoService(todoDao,

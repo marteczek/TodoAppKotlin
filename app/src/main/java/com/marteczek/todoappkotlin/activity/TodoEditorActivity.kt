@@ -155,4 +155,7 @@ class TodoEditorActivity : AppCompatActivity() {
             } ?: throw IllegalStateException("Activity cannot be null")
         }
     }
+    interface Xxx{
+         fun x() = true
+    }
 }
