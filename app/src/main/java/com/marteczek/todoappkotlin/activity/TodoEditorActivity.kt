@@ -23,7 +23,7 @@ import kotlinx.android.synthetic.main.activity_todo_editor.*
 import java.lang.IllegalStateException
 import java.util.*
 
-
+//todo test
 class TodoEditorActivity : AppCompatActivity() {
     companion object {
         const val STATE_COMPLETION_DATE = "state_completed_date"
