@@ -23,7 +23,7 @@ import kotlinx.android.synthetic.main.activity_todo_editor.*
 import java.lang.IllegalStateException
 import java.util.*
 
-//todo test 3
+//todo test 4
 class TodoEditorActivity : AppCompatActivity() {
     //todo test 2
     companion object {
