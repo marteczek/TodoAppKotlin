@@ -25,6 +25,7 @@ import java.util.*
 
 //todo test
 class TodoEditorActivity : AppCompatActivity() {
+    //todo test 2
     companion object {
         const val STATE_COMPLETION_DATE = "state_completed_date"
     }
