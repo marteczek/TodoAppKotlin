@@ -35,7 +35,6 @@ class TodoEditorActivity : AppCompatActivity() {
         ViewModelProvider(this).get(TodoEditorViewModel::class.java)
     }
 
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_todo_editor)
@@ -68,7 +67,7 @@ class TodoEditorActivity : AppCompatActivity() {
 
     private fun saveTodo(v: View) {
         val todoName = todoNameTextView.text.toString()
-        if (!TextUtils.isEmpty(todoName)){
+        if (!TextUtils.isEmpty(todoName)) {
             val categoryItem = categorySpinner.selectedItem as CategoryItem?
             val todo = Todo(
                 todoName = todoName,
@@ -133,7 +132,7 @@ class TodoEditorActivity : AppCompatActivity() {
 
     private data class CategoryItem(
         val key: String,
-        val text: String){
+        val text: String) {
         override fun toString() = text
     }
 
